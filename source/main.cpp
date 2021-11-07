@@ -16,12 +16,14 @@
 #include <events/mbed_events.h>
 
 #include <mbed.h>
+#include <string>
 #include "ble/BLE.h"
 #include "ble/Gap.h"
 #include "ButtonService.h"
+#include "IDService.h"
 #include "pretty_printer.h"
 
-const static char DEVICE_NAME[] = "Button";
+const static char DEVICE_NAME[] = "Button123";
 
 static EventQueue event_queue(/* event count */ 10 * EVENTS_EVENT_SIZE);
 
@@ -35,6 +37,8 @@ public:
         _button(BLE_BUTTON_PIN_NAME, BLE_BUTTON_PIN_PULL),
         _button_service(NULL),
         _button_uuid(ButtonService::BUTTON_SERVICE_UUID),
+        _id_service(NULL),
+        _id_uuid(IDService::ID_SERVICE_UUID),
         _adv_data_builder(_adv_buffer) { }
 
     void start() {
@@ -60,6 +64,9 @@ private:
         /* Setup primary service. */
 
         _button_service = new ButtonService(_ble, false /* initial value for button pressed */);
+
+        char id_str[] = "b07505026";
+        _id_service = new IDService(_ble, id_str);
 
         _button.fall(Callback<void()>(this, &BatteryDemo::button_pressed));
         _button.rise(Callback<void()>(this, &BatteryDemo::button_released));
@@ -112,7 +119,10 @@ private:
     }
 
     void button_pressed(void) {
+        char id_str[10] = "b07505026";
+
         _event_queue.call(Callback<void(bool)>(_button_service, &ButtonService::updateButtonState), true);
+        _event_queue.call(Callback<void(char*)>(_id_service, &IDService::sendIDStr), id_str);
     }
 
     void button_released(void) {
@@ -137,8 +147,10 @@ private:
     DigitalOut  _led1;
     InterruptIn _button;
     ButtonService *_button_service;
+    IDService *_id_service;
 
     UUID _button_uuid;
+    UUID _id_uuid;
 
     uint8_t _adv_buffer[ble::LEGACY_ADVERTISING_MAX_SIZE];
     ble::AdvertisingDataBuilder _adv_data_builder;
