@@ -7,7 +7,7 @@ public:
     const static uint16_t ID_STR_CHARACTERISTIC_UUID   = 0xB001;
 
     IDService(BLE &_ble, char* IDStrInitial) :
-        ble(_ble), IDstr(ID_STR_CHARACTERISTIC_UUID, &IDStrInitial, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)
+        ble(_ble), IDstr(ID_STR_CHARACTERISTIC_UUID, IDStrInitial, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)
     {
         GattCharacteristic *charTable[] = {&IDstr};
         GattService         iDService(IDService::ID_SERVICE_UUID, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));

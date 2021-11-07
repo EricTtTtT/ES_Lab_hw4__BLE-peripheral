@@ -131,7 +131,12 @@ private:
 
         _event_queue.call(Callback<void(bool)>(_button_service, &ButtonService::updateButtonState), true);
         // _event_queue.call(Callback<void(char*)>(_id_service, &IDService::sendIDStr), id_str);
-        // _led2 = !_led2;
+        if (_led2) {
+            _event_queue.call(Callback<void(bool)>(_led_service, &LEDService::toggleLEDState), false);
+        } else {
+            _event_queue.call(Callback<void(bool)>(_led_service, &LEDService::toggleLEDState), true);
+        }
+        _led2 = !_led2;
     }
 
     void button_released(void) {

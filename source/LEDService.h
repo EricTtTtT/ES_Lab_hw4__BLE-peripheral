@@ -35,6 +35,10 @@ public:
     {
         return ledState.getValueHandle();
     }
+
+    void toggleLEDState(bool newState) {
+        ble.gattServer().write(ledState.getValueHandle(), (uint8_t *)&newState, sizeof(bool));
+    }
  
 private:
     BLE                                 &ble;
