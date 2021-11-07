@@ -35,7 +35,7 @@ public:
         _ble(ble),
         _event_queue(event_queue),
         _led1(LED1, 1),
-        _led2(LED2, 1),
+        _led2(LED2, 0),
         _button(BLE_BUTTON_PIN_NAME, BLE_BUTTON_PIN_PULL),
         _button_service(NULL),
         _button_uuid(ButtonService::BUTTON_SERVICE_UUID),
@@ -72,7 +72,9 @@ private:
         char id_str[10] = "b07505026";
         _id_service = new IDService(_ble, id_str);
 
-        _led_service = new LEDService(_ble, true);
+        _led_service = new LEDService(_ble, false);
+
+        _ble.gattServer().onDataWritten(this, &BatteryDemo::on_data_written);
 
         _button.fall(Callback<void()>(this, &BatteryDemo::button_pressed));
         _button.rise(Callback<void()>(this, &BatteryDemo::button_released));
@@ -128,14 +130,18 @@ private:
         char id_str[10] = "b07505026";
 
         _event_queue.call(Callback<void(bool)>(_button_service, &ButtonService::updateButtonState), true);
-        _event_queue.call(Callback<void(char*)>(_id_service, &IDService::sendIDStr), id_str);
-        _event_queue.call(Callback<void(bool)>(_led_service, &LEDService::updateLEDState), true);
-        _led2 = !_led2;
+        // _event_queue.call(Callback<void(char*)>(_id_service, &IDService::sendIDStr), id_str);
+        // _led2 = !_led2;
     }
 
     void button_released(void) {
         _event_queue.call(Callback<void(bool)>(_button_service, &ButtonService::updateButtonState), false);
-        _event_queue.call(Callback<void(bool)>(_led_service, &LEDService::updateLEDState), false);
+    }
+
+    void on_data_written(const GattWriteCallbackParams *params) {
+        if ((params->handle == _led_service->getValueHandle()) && (params->len == 1)) {
+            _led2 = *(params->data);
+        }
     }
 
     void blink(void) {

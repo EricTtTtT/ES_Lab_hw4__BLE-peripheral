@@ -13,30 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+ 
 #ifndef __BLE_LED_SERVICE_H__
 #define __BLE_LED_SERVICE_H__
-
+ 
 class LEDService {
 public:
     const static uint16_t LED_SERVICE_UUID              = 0xC000;
     const static uint16_t LED_STATE_CHARACTERISTIC_UUID = 0xC001;
-
-    LEDService(BLE &_ble, bool LEDPressedInitial) :
-        ble(_ble), LEDState(LED_STATE_CHARACTERISTIC_UUID, &LEDPressedInitial, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)
+ 
+    LEDService(BLE &_ble, bool initialValueForLEDCharacteristic) :
+        ble(_ble), ledState(LED_STATE_CHARACTERISTIC_UUID, &initialValueForLEDCharacteristic)
     {
-        GattCharacteristic *charTable[] = {&LEDState};
-        GattService         ledService(LEDService::LED_SERVICE_UUID, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));
+        GattCharacteristic *charTable[] = {&ledState};
+        GattService         ledService(LED_SERVICE_UUID, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));
+ 
         ble.gattServer().addService(ledService);
     }
-
-    void updateLEDState(bool newState) {
-        ble.gattServer().write(LEDState.getValueHandle(), (uint8_t *)&newState, sizeof(bool));
+ 
+    GattAttribute::Handle_t getValueHandle() const
+    {
+        return ledState.getValueHandle();
     }
-
+ 
 private:
-    BLE                              &ble;
-    ReadWriteGattCharacteristic<bool>  LEDState;
+    BLE                                 &ble;
+    ReadWriteGattCharacteristic<bool>   ledState;
 };
-
+ 
 #endif /* #ifndef __BLE_LED_SERVICE_H__ */

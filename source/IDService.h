@@ -15,12 +15,12 @@ public:
     }
 
     void sendIDStr(char* p_id_str) {
-        ble.gattServer().write(IDstr.getValueHandle(), (uint8_t *)&p_id_str, 10 * sizeof(char));
+        ble.gattServer().write(IDstr.getValueHandle(), (uint8_t *)&p_id_str, 9 * sizeof(char));
     }
 
 private:
     BLE                              &ble;
-    ReadOnlyArrayGattCharacteristic<char, 10> IDstr;
+    ReadOnlyArrayGattCharacteristic<char, 9> IDstr;
 };
 
 #endif /* #ifndef __BLE_ID_SERVICE_H__ */
