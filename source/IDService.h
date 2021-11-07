@@ -4,14 +4,14 @@
 class IDService {
 public:
     const static uint16_t ID_SERVICE_UUID              = 0xB000;
-    const static uint16_t ID_STATE_CHARACTERISTIC_UUID = 0xB001;
+    const static uint16_t ID_STR_CHARACTERISTIC_UUID   = 0xB001;
 
-    IdService(BLE &_ble, char* IDStrInitial) :
-        ble(_ble), IDstr(ID_STATE_CHARACTERISTIC_UUID, &IDStrInitial, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)
+    IDService(BLE &_ble, char* IDStrInitial) :
+        ble(_ble), IDstr(ID_STR_CHARACTERISTIC_UUID, &IDStrInitial[10], GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)
     {
         GattCharacteristic *charTable[] = {&IDstr};
-        GattService         IDService(IDService::ID_SERVICE_UUID, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));
-        ble.gattServer().addService(IDService);
+        GattService         iDService(IDService::ID_SERVICE_UUID, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));
+        ble.gattServer().addService(iDService);
     }
 
     void sendIDStr(char* p_id_str) {

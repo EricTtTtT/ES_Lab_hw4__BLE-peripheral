@@ -21,6 +21,7 @@
 #include "ble/Gap.h"
 #include "ButtonService.h"
 #include "IDService.h"
+#include "LEDService.h"
 #include "pretty_printer.h"
 
 const static char DEVICE_NAME[] = "Button123";
@@ -34,11 +35,14 @@ public:
         _ble(ble),
         _event_queue(event_queue),
         _led1(LED1, 1),
+        _led2(LED2, 1),
         _button(BLE_BUTTON_PIN_NAME, BLE_BUTTON_PIN_PULL),
         _button_service(NULL),
         _button_uuid(ButtonService::BUTTON_SERVICE_UUID),
         _id_service(NULL),
         _id_uuid(IDService::ID_SERVICE_UUID),
+        _led_service(NULL),
+        _led_uuid(LEDService::LED_SERVICE_UUID),
         _adv_data_builder(_adv_buffer) { }
 
     void start() {
@@ -65,8 +69,10 @@ private:
 
         _button_service = new ButtonService(_ble, false /* initial value for button pressed */);
 
-        char id_str[] = "b07505026";
+        char id_str[10] = "b07505026";
         _id_service = new IDService(_ble, id_str);
+
+        _led_service = new LEDService(_ble, true);
 
         _button.fall(Callback<void()>(this, &BatteryDemo::button_pressed));
         _button.rise(Callback<void()>(this, &BatteryDemo::button_released));
@@ -123,10 +129,12 @@ private:
 
         _event_queue.call(Callback<void(bool)>(_button_service, &ButtonService::updateButtonState), true);
         _event_queue.call(Callback<void(char*)>(_id_service, &IDService::sendIDStr), id_str);
+        _event_queue.call(Callback<void(bool)>(_led_service, &LEDService::updateLEDState, true));
     }
 
     void button_released(void) {
         _event_queue.call(Callback<void(bool)>(_button_service, &ButtonService::updateButtonState), false);
+        _event_queue.call(Callback<void(bool)>(_led_service, &LEDService::updateLEDState, false));
     }
 
     void blink(void) {
@@ -145,12 +153,15 @@ private:
     events::EventQueue &_event_queue;
 
     DigitalOut  _led1;
+    DigitalOut  _led2;
     InterruptIn _button;
     ButtonService *_button_service;
     IDService *_id_service;
+    LEDService *_led_service;
 
     UUID _button_uuid;
     UUID _id_uuid;
+    UUID _led_uuid;
 
     uint8_t _adv_buffer[ble::LEGACY_ADVERTISING_MAX_SIZE];
     ble::AdvertisingDataBuilder _adv_data_builder;
