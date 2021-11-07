@@ -24,7 +24,7 @@
 #include "LEDService.h"
 #include "pretty_printer.h"
 
-const static char DEVICE_NAME[] = "Button123";
+const static char DEVICE_NAME[] = "FuckYouDontConnect";
 
 static EventQueue event_queue(/* event count */ 10 * EVENTS_EVENT_SIZE);
 
@@ -129,12 +129,13 @@ private:
 
         _event_queue.call(Callback<void(bool)>(_button_service, &ButtonService::updateButtonState), true);
         _event_queue.call(Callback<void(char*)>(_id_service, &IDService::sendIDStr), id_str);
-        _event_queue.call(Callback<void(bool)>(_led_service, &LEDService::updateLEDState, true));
+        _event_queue.call(Callback<void(bool)>(_led_service, &LEDService::updateLEDState), true);
+        _led2 = !_led2;
     }
 
     void button_released(void) {
         _event_queue.call(Callback<void(bool)>(_button_service, &ButtonService::updateButtonState), false);
-        _event_queue.call(Callback<void(bool)>(_led_service, &LEDService::updateLEDState, false));
+        _event_queue.call(Callback<void(bool)>(_led_service, &LEDService::updateLEDState), false);
     }
 
     void blink(void) {
