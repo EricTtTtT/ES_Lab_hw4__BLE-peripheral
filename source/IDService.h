@@ -3,8 +3,8 @@
 
 class IDService {
 public:
-    const static uint16_t ID_SERVICE_UUID              = 0xA000;
-    const static uint16_t ID_STATE_CHARACTERISTIC_UUID = 0xA001;
+    const static uint16_t ID_SERVICE_UUID              = 0xB000;
+    const static uint16_t ID_STATE_CHARACTERISTIC_UUID = 0xB001;
 
     IdService(BLE &_ble, char* IDStrInitial) :
         ble(_ble), IDstr(ID_STATE_CHARACTERISTIC_UUID, &IDStrInitial, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)
